@@ -1,0 +1,274 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Conversational AI Dashboard Generator API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: dashboard
+    description: Dashboard query and generation operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /dashboard/query:
+    post:
+      operationId: queryDashboard
+      tags: [dashboard]
+      summary: Query the dashboard with natural language
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DashboardQueryRequest"
+      responses:
+        "200":
+          description: Dashboard data with charts and insights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardQueryResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /dashboard/upload-csv:
+    post:
+      operationId: uploadCsv
+      tags: [dashboard]
+      summary: Upload a CSV file and store in database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadCsvRequest"
+      responses:
+        "200":
+          description: CSV uploaded and stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadCsvResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /dashboard/tables:
+    get:
+      operationId: listTables
+      tags: [dashboard]
+      summary: List available data tables
+      responses:
+        "200":
+          description: List of tables
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TableInfo"
+  /dashboard/schema:
+    get:
+      operationId: getSchemaInfo
+      tags: [dashboard]
+      summary: Get schema information for available tables
+      responses:
+        "200":
+          description: Schema info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaInfo"
+  /dashboard/history:
+    get:
+      operationId: getQueryHistory
+      tags: [dashboard]
+      summary: Get recent query history
+      responses:
+        "200":
+          description: List of recent queries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QueryHistoryItem"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    DashboardQueryRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        tableContext:
+          type: ["string", "null"]
+      required:
+        - query
+    DashboardQueryResponse:
+      type: object
+      properties:
+        sql:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        chartConfigs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChartConfig"
+        insights:
+          type: array
+          items:
+            type: string
+        cannotAnswer:
+          type: boolean
+        rowCount:
+          type: integer
+      required:
+        - sql
+        - data
+        - chartConfigs
+        - insights
+        - cannotAnswer
+        - rowCount
+    ChartConfig:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [line, bar, pie, horizontalBar, table]
+        title:
+          type: string
+        xKey:
+          type: ["string", "null"]
+        yKey:
+          type: ["string", "null"]
+        dataKeys:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        columns:
+          type: array
+          items:
+            type: string
+      required:
+        - type
+        - title
+        - dataKeys
+        - data
+    UploadCsvRequest:
+      type: object
+      properties:
+        tableName:
+          type: string
+        csvContent:
+          type: string
+      required:
+        - tableName
+        - csvContent
+    UploadCsvResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        tableName:
+          type: string
+        rowCount:
+          type: integer
+        columns:
+          type: array
+          items:
+            type: string
+      required:
+        - success
+        - tableName
+        - rowCount
+        - columns
+    TableInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        rowCount:
+          type: integer
+        columns:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - rowCount
+        - columns
+    SchemaInfo:
+      type: object
+      properties:
+        tables:
+          type: array
+          items:
+            $ref: "#/components/schemas/TableInfo"
+      required:
+        - tables
+    QueryHistoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        query:
+          type: string
+        sql:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - query
+        - sql
+        - createdAt
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

@@ -1,0 +1,20 @@
+packages:
+  "framer-motion": "For smooth layout transitions, chart reveals, and list animations"
+  "recharts": "For rendering interactive data visualizations (line, bar, pie charts)"
+  "lucide-react": "For UI icons across the dashboard"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging Tailwind CSS classes safely"
+  "@hookform/resolvers": "For Zod validation integration if needed"
+
+images:
+  - path: "artifacts/ai-dashboard/public/images/logo.png"
+    description: "A minimal, modern, abstract geometric logo representing artificial intelligence and data analytics, glowing cyan and purple on a dark transparent background"
+    aspect_ratio: "1:1"
+  - path: "artifacts/ai-dashboard/public/images/hero-glow.png"
+    description: "An abstract, soft, blurred radial gradient background in deep indigo, cyan, and purple to provide a premium dark mode glow effect"
+    aspect_ratio: "16:9"
+
+notes:
+  - Hooks are imported from @workspace/api-client-react
+  - Defaulting to a forced dark mode aesthetic for a professional analytics feel
+  - CSV uploads are read as raw text via FileReader before being sent to the API
